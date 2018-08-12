@@ -1,4 +1,4 @@
-from TomeRater import *
+from TomeRater import TomeRater
 
 Tome_Rater = TomeRater()
 

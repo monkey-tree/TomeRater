@@ -1,9 +1,6 @@
-'''
-class TypeWrongException(Exception):
-    def __repr__(self):
-        return 'The type of the parameter is wrong, please check!'
+#!/usr/bin/python
+# _*_ coding: UTF-8 _*_
 
-'''
 Book_Instances = []
 class User(object):
     '''

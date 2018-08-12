@@ -4,6 +4,7 @@ class TypeWrongException(Exception):
         return 'The type of the parameter is wrong, please check!'
 
 '''
+Book_Instances = []
 class User(object):
     '''
 
@@ -17,6 +18,7 @@ class User(object):
             self.books = {}
 
 
+
     def get_email(self):
         return self.email
 
@@ -26,11 +28,11 @@ class User(object):
     def __repr__(self):
         repr_books = ''
         for book in self.books:
-            repr_books = repr_books + str(book)
+            repr_books = repr_books + str(book) + ', user rating is ' + str(self.books[book])
         return ('[User ' + self.name + ', email: ' +
                 self.email + ', ' + 'books read: ' +
                 str(len(self.books)) + ', books: ' +
-                repr_books + ', user rating is ' + str(self.books[book]) + ']')
+                repr_books  + ']')
 
 
     def __eq__(self, other_user):
@@ -48,23 +50,33 @@ class User(object):
             self.books[book] = rating
 
     def get_avg_ratings(self):
-        total_rating = 0
-        for rating in self.books.values():
-            if rating is None:
-                pass
-            else:
-                total_rating = total_rating + rating
-        return total_rating/len(self.books)
+        if not len(self.books):
+            return 0
+        else:
+            total_rating = 0
+            for rating in self.books.values():
+                if rating is None:
+                    pass
+                else:
+                    total_rating = total_rating + rating
+            return total_rating/len(self.books)
 
 
 class Book:
     def __init__(self, title, isbn):
-        if type(title) == str and type(isbn) == int:
+        if type(title) != str and type(isbn) != int:
+            raise TypeError('bad type for title or isbn.')
+        else:
+            if len(Book_Instances) != 0:
+                for book in Book_Instances:
+                    if book.isbn == isbn:
+                        raise Exception('Duplicated ISBN.')
+
             self.title = title
             self.isbn = isbn
             self.ratings = []
-        else:
-            raise TypeError('bad type for title or isbn.')
+
+        Book_Instances.append(self)
 
     def get_title(self):
         return self.title
@@ -107,10 +119,13 @@ class Book:
         return hash((self.title, self.isbn))
 
     def get_avg_rating(self):
-        total_rating = 0
-        for rating in self.ratings:
-            total_rating = total_rating + rating
-        return total_rating/len(self.ratings)
+        if not len(self.ratings):
+            return 0
+        else:
+            total_rating = 0
+            for rating in self.ratings:
+                total_rating = total_rating + rating
+            return total_rating/len(self.ratings)
 
 
 class Fiction(Book):
@@ -171,6 +186,23 @@ class TomeRater:
         except Exception:
             raise
 
+    def __eq__(self, other_tome_rater):
+        if other_tome_rater is None:
+            return False
+        else:
+            for key, value in self.users.items():
+                for other_key, other_value in other_tome_rater.users.items():
+                    if key != other_key or value != other_value:
+                        return False
+            for key, value in self.books.items():
+                for other_key, other_value in other_tome_rater.books.items():
+                    if key != other_key or value != other_value:
+                        return False
+
+            return True
+
+
+
     def create_novel(self, title, author, isbn):
         try:
             new_novel = Fiction(title, author, isbn)
@@ -185,26 +217,50 @@ class TomeRater:
         except Exception:
             raise
 
+    def email_validate(self, email):
+        if '@' in email and ('.com' in email or '.edu' in email or '.org' in email):
+            return True
+        else:
+            return False
 
     def add_user(self, name, email, user_books = None):
-        try:
-            new_user = User(name, email)
-            self.users[email] = new_user
-        except Exception:
-            raise
+        if not self.email_validate(email):
+            print('It\'s not a valid email address.')
+            return
+        elif email in self.users.keys():
+            print('The user already exists.')
+            return
+        else:
+            try:
+                new_user = User(name, email)
+                self.users[email] = new_user
+            except Exception:
+                raise
 
         if user_books != None:
             for book in user_books:
                 self.add_book_to_user(book, email)
 
+    def dup_isbn(self, book):
+        if self.books == {}:
+            return False
+        else:
+            for user_book in self.books:
+                if book.isbn == user_book.isbn:
+                    return user_book
+            return False
 
 
     def add_book_to_user(self, book, email, rating = None):
-        user = self.users.get(email)
-        if user == None:
-            print('No user with email')
+        if not self.email_validate(email) or not email in self.users:
+            print('Not valid email address, or no user with this email.')
+            return
+        elif not isinstance(book, Book):
+            print('Bad type for book.')
+            return
         else:
             try:
+                user = self.users.get(email)
                 user.read_book(book, rating)
                 if rating is None:
                     pass
@@ -244,6 +300,44 @@ class TomeRater:
                 else:
                     pass
         return most_read_book
+
+    def sort_books_descend(self, books):
+        if self.books == {}:
+            return None
+        else:
+            read_book_descend = []
+            most_read_book = None
+            most_read_num = 0
+            for book in self.books:
+                if self.books[book] <= most_read_num:
+                    read_book_descend.append(book)
+                else:
+                    most_read_num = self.books[book]
+                    most_read_book = book
+
+                    if len(read_book_descend) == 0:
+                        read_book_descend.append(None)
+                        read_book_descend[0] = book
+                    else:
+                        i = 0
+                        read_book_descend.append(None)
+                        while i <= len(read_book_descend) - 2:
+                            if 0-i-2 == 0:
+                                j = 0
+                            else:
+                                j = 0-i-2
+                            if self.books[read_book_descend[j]] < most_read_num:
+                                read_book_descend[0-i-1] = read_book_descend[j]
+                                read_book_descend[j] = most_read_book
+                            i = i + 1
+            return read_book_descend
+
+    def get_n_most_read_book(self, n):
+        read_book_descend = self.sort_books_descend(self.books)
+        read_book_descend_new = []
+        for i in range(min(n, len(read_book_descend))):
+            read_book_descend_new.append((read_book_descend[i], self.books[read_book_descend[i]]))
+        return read_book_descend_new
 
     def highest_rated_book(self):
         highest_rated_book = None

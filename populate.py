@@ -3,13 +3,16 @@ from TomeRater import *
 Tome_Rater = TomeRater()
 
 #Create some books:
+
 book1 = Tome_Rater.create_book("Society of Mind", 12345678)
-novel1 = Tome_Rater.create_novel("Alice In Wonderland", "Lewis Carroll", 12345)
+#book_duplicate = Tome_Rater.create_book("Society of Mind", 12345678)
+novel1 = Tome_Rater.create_novel("Alice In Wonderland", "Lewis Carroll", 12345679)
 novel1.set_isbn(9781536831139)
 nonfiction1 = Tome_Rater.create_non_fiction("Automate the Boring Stuff", "Python", "beginner", 1929452)
 nonfiction2 = Tome_Rater.create_non_fiction("Computing Machinery and Intelligence", "AI", "advanced", 11111938)
 novel2 = Tome_Rater.create_novel("The Diamond Age", "Neal Stephenson", 10101010)
-novel3 = Tome_Rater.create_novel("There Will Come Soft Rains", "Ray Bradbury", 10001000)
+novel3 = Tome_Rater.create_novel("There Will Come Soft Rains", "Ray Bradbury", 10001001)
+
 
 #Create users:
 Tome_Rater.add_user("Alan Turing", "alan@turing.com")
@@ -31,7 +34,9 @@ Tome_Rater.add_book_to_user(novel2, "marvin@mit.edu", 2)
 Tome_Rater.add_book_to_user(novel3, "marvin@mit.edu", 2)
 Tome_Rater.add_book_to_user(novel3, "david@computation.org", 4)
 
-#print(Tome_Rater)
+
+
+print(Tome_Rater)
 
 
 #Uncomment these to test your functions:
@@ -44,3 +49,6 @@ print("Highest rated book:")
 print(Tome_Rater.highest_rated_book())
 print("Most read book:")
 print(Tome_Rater.get_most_read_book())
+
+print("Most 3 read book:")
+print(Tome_Rater.get_n_most_read_book(3))
